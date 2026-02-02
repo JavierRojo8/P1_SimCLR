@@ -3,6 +3,7 @@ import os
 import sys
 
 import torch
+from datetime import datetime
 import torch.nn.functional as F
 from torch.amp import GradScaler, autocast
 from torch.utils.tensorboard import SummaryWriter
@@ -96,10 +97,22 @@ class SimCLR(object):
             if epoch_counter >= 10:
                 self.scheduler.step()
             logging.debug(f"Epoch: {epoch_counter}\tLoss: {loss}\tTop1 accuracy: {top1[0]}")
+            if epoch_counter % 30 == 0:
+                # save model checkpoints in a folder
+                mkdir_path = os.path.join(self.writer.log_dir, 'checkpoints')
+                os.makedirs(mkdir_path, exist_ok=True)
+                checkpoint_name = f'checkpoint_{datetime.timestamp}_{epoch_counter:04d}.pth.tar'
+                save_checkpoint({
+                    'epoch': epoch_counter,
+                    'arch': self.args.arch,
+                    'state_dict': self.model.state_dict(),
+                    'optimizer': self.optimizer.state_dict(),
+                }, is_best=False, filename=os.path.join(mkdir_path, checkpoint_name))
+
 
         logging.info("Training has finished.")
         # save model checkpoints
-        checkpoint_name = 'checkpoint_{:04d}.pth.tar'.format(self.args.epochs)
+        checkpoint_name = f'checkpoint_{datetime.timestamp}_{self.args.epochs:04d}.pth.tar'
         save_checkpoint({
             'epoch': self.args.epochs,
             'arch': self.args.arch,
