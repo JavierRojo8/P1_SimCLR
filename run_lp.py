@@ -4,6 +4,7 @@ import torch.backends.cudnn as cudnn
 from torchvision import models
 from models.resnet_linear_probing import ResNetLP
 from linear_probing import LinearProbing
+from data_aug.clean_dataset import CleanDataset
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
@@ -54,7 +55,6 @@ parser.add_argument('--gpu-index', default=0, type=int, help='Gpu index.')
 def main():
    # We are going to need, the dataset, the model architecture,  
     args = parser.parse_args()
-    assert args.n_views == 2, "Only two view training is supported. Please use --n-views 2."
     # check if gpu training is available
     if not args.disable_cuda and torch.cuda.is_available():
         args.device = torch.device('cuda')
@@ -68,20 +68,18 @@ def main():
     else:
         raise ValueError('Dataset not supported: {}'.format(args.dataset_name))
     
-    dataset = 
-    
-    train_loader = torch.utils.data.DataLoader(
-        dataset=None,  # Placeholder for actual dataset
+    dataset = CleanDataset(root_folder=args.data)
+    train_loader, test_loader = dataset.get_loaders(
+        name=args.dataset_name,
         batch_size=args.batch_size,
-        shuffle=True,
-        num_workers=args.workers,
-        pin_memory=True)
+        workers=args.workers
+    )   
+
+    checkpoint_path = f'runs/checkpoint_4LP/checkpoint_try_1.pth.tar' 
     
-    checkpoint_path = f'./checkpoints/{args.arch}_simclr_{dataset_name}_checkpoint.pth.tar' 
+    model = ResNetLP(base_model=args.arch, out_dim=args.out_dim, checkpoint_path=checkpoint_path, freeze_backbone=True)
     
-    model = ResNetLP(base_model=args.arch, out_dim=args.out_dim, checkpoint_path=checkpoint_path freeze_backbone=True)
-    
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    optimizer = torch.optim.Adam(model.backbone.fc.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
         

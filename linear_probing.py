@@ -35,15 +35,18 @@ class LinearProbing(object):
         logging.info(f"Start Linear_Probing training for {self.args.epochs} epochs.")
         logging.info(f"Training with gpu: {self.args.disable_cuda}.")
 
+        self.model.backbone.eval()
+        self.model.backbone.fc.train()
+        
         for epoch_counter in range(self.args.epochs):
-            for images, _ in tqdm(train_loader):
-                images = torch.cat(images, dim=0)
-
+            
+            for images, labels in tqdm(train_loader):
+                
                 images = images.to(self.args.device)
+                labels = labels.to(self.args.device)
 
                 with autocast('cuda', enabled=self.args.fp16_precision):
-                    features = self.model(images)
-                    logits, labels = self.info_nce_loss(features)
+                    logits = self.model(images)
                     loss = self.criterion(logits, labels)
 
                 self.optimizer.zero_grad()
@@ -68,9 +71,10 @@ class LinearProbing(object):
             logging.debug(f"Epoch: {epoch_counter}\tLoss: {loss}\tTop1 accuracy: {top1[0]}")
             if epoch_counter % 30 == 0:
                 # save model checkpoints in a folder
-                mkdir_path = os.path.join(self.writer.log_dir, 'checkpoints')
+                mkdir_path = os.path.join(self.writer.log_dir, 'checkpointsLP')
                 os.makedirs(mkdir_path, exist_ok=True)
-                checkpoint_name = f'checkpoint_{datetime.timestamp}_{epoch_counter:04d}.pth.tar'
+                checkpoint_name = (
+                    f'checkpointLP_{datetime.now().strftime("%Y%m%d_%H%M%S")}_{epoch_counter:04d}.pth.tar')
                 save_checkpoint({
                     'epoch': epoch_counter,
                     'arch': self.args.arch,
@@ -81,11 +85,12 @@ class LinearProbing(object):
 
         logging.info("Training has finished.")
         # save model checkpoints
-        checkpoint_name = f'checkpoint_{datetime.timestamp}_{self.args.epochs:04d}.pth.tar'
+        checkpoint_name = (
+                    f'checkpointLP_{datetime.now().strftime("%Y%m%d_%H%M%S")}_{epoch_counter:04d}.pth.tar')
         save_checkpoint({
             'epoch': self.args.epochs,
             'arch': self.args.arch,
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
-        }, is_best=False, filename=os.path.join(self.writer.log_dir, checkpoint_name))
+        }, is_best=False, filename=os.path.join(mkdir_path, checkpoint_name))
         logging.info(f"Model checkpoint and metadata has been saved at {self.writer.log_dir}.")

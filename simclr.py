@@ -101,7 +101,8 @@ class SimCLR(object):
                 # save model checkpoints in a folder
                 mkdir_path = os.path.join(self.writer.log_dir, 'checkpoints')
                 os.makedirs(mkdir_path, exist_ok=True)
-                checkpoint_name = f'checkpoint_{datetime.timestamp}_{epoch_counter:04d}.pth.tar'
+                checkpoint_name = (
+                    f'checkpoint_{datetime.now().strftime("%Y%m%d_%H%M%S")}_{epoch_counter:04d}.pth.tar')
                 save_checkpoint({
                     'epoch': epoch_counter,
                     'arch': self.args.arch,
@@ -112,11 +113,12 @@ class SimCLR(object):
 
         logging.info("Training has finished.")
         # save model checkpoints
-        checkpoint_name = f'checkpoint_{datetime.timestamp}_{self.args.epochs:04d}.pth.tar'
+        checkpoint_name = (
+                    f'checkpoint_{datetime.now().strftime("%Y%m%d_%H%M%S")}_{epoch_counter:04d}.pth.tar')
         save_checkpoint({
             'epoch': self.args.epochs,
             'arch': self.args.arch,
             'state_dict': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
-        }, is_best=False, filename=os.path.join(self.writer.log_dir, checkpoint_name))
+        }, is_best=False, filename=os.path.join(mkdir_path, checkpoint_name))
         logging.info(f"Model checkpoint and metadata has been saved at {self.writer.log_dir}.")
