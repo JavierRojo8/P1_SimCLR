@@ -12,7 +12,7 @@ model_names = sorted(name for name in models.__dict__
 parser = argparse.ArgumentParser(description='PyTorch SimCLR_Linear_Probing')
 parser.add_argument('-data', metavar='DIR', default='./datasets',
                     help='path to dataset')
-parser.add_argument('-dataset-name', default='stl10',
+parser.add_argument('-dataset-name', default='cifar10',
                     help='dataset name', choices=['stl10', 'cifar10'])
 parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
                     choices=model_names,
@@ -68,6 +68,7 @@ def main():
     else:
         raise ValueError('Dataset not supported: {}'.format(args.dataset_name))
     
+    dataset = 
     
     train_loader = torch.utils.data.DataLoader(
         dataset=None,  # Placeholder for actual dataset
@@ -76,7 +77,9 @@ def main():
         num_workers=args.workers,
         pin_memory=True)
     
-    model = ResNetLP(base_model=args.arch, out_dim=args.out_dim, freeze_backbone=True)
+    checkpoint_path = f'./checkpoints/{args.arch}_simclr_{dataset_name}_checkpoint.pth.tar' 
+    
+    model = ResNetLP(base_model=args.arch, out_dim=args.out_dim, checkpoint_path=checkpoint_path freeze_backbone=True)
     
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     
