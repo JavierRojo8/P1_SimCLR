@@ -75,7 +75,7 @@ def main():
         workers=args.workers
     )   
 
-    checkpoint_path = f'runs/checkpoint_4LP/checkpoint_try_1.pth.tar' 
+    checkpoint_path = f'runs/checkpoint_4LP/checkpoint_wout_training.pth.tar' 
     
     model = ResNetLP(base_model=args.arch, out_dim=args.out_dim, checkpoint_path=checkpoint_path, freeze_backbone=True)
     

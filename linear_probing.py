@@ -129,6 +129,17 @@ class LinearProbing(object):
 
         # confusion matrix
         cm = confusion_matrix(all_labels, all_preds)
+       # plot confusion matrix
+        plt.figure(figsize=(8, 6))
+        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title('Confusion Matrix')
+        plt.colorbar()
+        tick_marks = np.arange(len(set(all_labels)))
+        plt.xticks(tick_marks, tick_marks)
+        plt.yticks(tick_marks, tick_marks)
+        plt.xlabel('Predicted Label')
+        plt.ylabel('True Label')
+        plt.savefig(os.path.join(self.writer.log_dir, 'confusion_matrix.png'))  
 
         print(f'Test Accuracy of the model on the test images: {acc:.2f} %')
         print('Confusion Matrix:')
