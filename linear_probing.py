@@ -9,6 +9,9 @@ from torch.amp import GradScaler, autocast
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from utils import save_config_file, accuracy, save_checkpoint
+from sklearn.metrics import confusion_matrix
+import numpy as np
+import matplotlib.pyplot as plt
 
 torch.manual_seed(0)
 
@@ -94,3 +97,44 @@ class LinearProbing(object):
             'optimizer': self.optimizer.state_dict(),
         }, is_best=False, filename=os.path.join(mkdir_path, checkpoint_name))
         logging.info(f"Model checkpoint and metadata has been saved at {self.writer.log_dir}.")
+        
+
+    def test(self, test_loader):
+        self.model.eval()
+        total = 0
+        correct = 0
+
+        all_preds = []
+        all_labels = []
+
+        with torch.no_grad():
+            for images, labels in tqdm(test_loader):
+                images = images.to(self.args.device)
+                labels = labels.to(self.args.device)
+
+                logits = self.model(images)
+                _, predicted = torch.max(logits, 1)
+
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+                all_preds.append(predicted.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
+
+        acc = 100 * correct / total
+
+        # concatenate batches
+        all_preds = np.concatenate(all_preds)
+        all_labels = np.concatenate(all_labels)
+
+        # confusion matrix
+        cm = confusion_matrix(all_labels, all_preds)
+
+        print(f'Test Accuracy of the model on the test images: {acc:.2f} %')
+        print('Confusion Matrix:')
+        print(cm)
+
+        logging.info(f'Test Accuracy of the model on the test images: {acc:.2f} %')
+        logging.info(f'Confusion Matrix:\n{cm}')
+
+        return acc, cm

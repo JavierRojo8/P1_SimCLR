@@ -88,7 +88,9 @@ def main():
                                    optimizer=optimizer,
                                    scheduler=scheduler,
                                    args=args)
-        lp_trainer.train(train_loader=train_loader)  
+        lp_trainer.train(train_loader=train_loader) 
+        
+        lp_trainer.test(test_loader=test_loader)
     
 if __name__ == '__main__':
     main()
