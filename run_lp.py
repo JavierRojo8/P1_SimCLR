@@ -1,5 +1,7 @@
 import argparse
 import torch
+import os
+import sys
 import torch.backends.cudnn as cudnn
 from torchvision import models
 from models.resnet_linear_probing import ResNetLP
@@ -50,11 +52,35 @@ parser.add_argument('--temperature', default=0.07, type=float,
 parser.add_argument('--n-views', default=2, type=int, metavar='N',
                     help='Number of views for contrastive learning training.')
 parser.add_argument('--gpu-index', default=0, type=int, help='Gpu index.')
+parser.add_argument('--run-name',required=True, type=str, help='Run name for TensorBoard logs.')
+
+
+def register_run_name(run_name, registry_file="runs/used_run_names.txt"):
+    os.makedirs(os.path.dirname(registry_file), exist_ok=True)
+
+    # Create file if it doesn't exist
+    if not os.path.exists(registry_file):
+        open(registry_file, "w").close()
+
+    with open(registry_file, "r") as f:
+        used_names = {line.strip() for line in f if line.strip()}
+
+    if run_name in used_names:
+        print(f"❌ Error: run name '{run_name}' is already taken.")
+        print("   Please choose a different --run-name.")
+        sys.exit(1)
+
+    # Register new run name
+    with open(registry_file, "a") as f:
+        f.write(run_name + "\n")
+
 
 
 def main():
    # We are going to need, the dataset, the model architecture,  
     args = parser.parse_args()
+    
+    register_run_name(args.run_name)
     # check if gpu training is available
     if not args.disable_cuda and torch.cuda.is_available():
         args.device = torch.device('cuda')
@@ -75,7 +101,11 @@ def main():
         workers=args.workers
     )   
 
-    checkpoint_path = f'runs/checkpoint_4LP/checkpoint_wout_training.pth.tar' 
+    # model checkpoint without training  
+    # checkpoint_path = f'runs/checkpoint_4LP/initial_checkpoint_feb04_1834.pth.tar'
+    
+    # model checkpoint with training
+    checkpoint_path = f'runs/checkpoint_4LP/final_checkpoint_feb04_1834.pth.tar'
     
     model = ResNetLP(base_model=args.arch, out_dim=args.out_dim, checkpoint_path=checkpoint_path, freeze_backbone=True)
     
@@ -87,6 +117,7 @@ def main():
         lp_trainer = LinearProbing(model=model,
                                    optimizer=optimizer,
                                    scheduler=scheduler,
+                                   run_name=f"runs/lp_{args.run_name}",
                                    args=args)
         lp_trainer.train(train_loader=train_loader) 
         

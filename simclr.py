@@ -65,6 +65,17 @@ class SimCLR(object):
         n_iter = 0
         logging.info(f"Start SimCLR training for {self.args.epochs} epochs.")
         logging.info(f"Training with gpu: {self.args.disable_cuda}.")
+        
+        mkdir_path = os.path.join(self.writer.log_dir, 'checkpoints')
+        os.makedirs(mkdir_path, exist_ok=True)
+        checkpoint_name = (
+            f'initial_checkpoint_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pth.tar')
+        save_checkpoint({
+            'epoch': 0,
+            'arch': self.args.arch,
+            'state_dict': self.model.state_dict(),
+            'optimizer': self.optimizer.state_dict(),
+        }, is_best=False, filename=os.path.join(mkdir_path, checkpoint_name))
 
         for epoch_counter in range(self.args.epochs):
             for images, _ in tqdm(train_loader):
