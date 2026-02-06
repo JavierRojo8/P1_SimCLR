@@ -9,7 +9,7 @@ from models.resnet_linear_probing import ResNetLP
 import numpy as np
 import seaborn as sns
 
-def visualize_latent_space(model_checkpoint, base_model, out_dim, data_loader, device):
+def visualize_latent_space(model_checkpoint, base_model, out_dim, data_loader, device, fig_name=None):
     # Load the trained model
     model = ResNetLP(base_model=base_model, out_dim=out_dim, checkpoint_path=model_checkpoint, freeze_backbone=False)
     model.to(device)
@@ -40,12 +40,17 @@ def visualize_latent_space(model_checkpoint, base_model, out_dim, data_loader, d
     plt.legend(title='Classes')
     plt.show()
     
-    # save the plot
-    plt.savefig('latent_space_tsne.png') 
+    # Make directory for saving the plot if it doesn't exist
+    import os
+    os.makedirs('plots', exist_ok=True)
+    
+    plt.savefig(f"plots/{fig_name}.png")  # Save the figure with a specific name
+    
     
 if __name__ == "__main__":
     # Define parameters
-    model_checkpoint_path = f'runs/checkpoint_4LP/checkpoint_try_1.pth.tar'
+    model_checkpoint_path = f'runs/checkpoint_4LP/initial_checkpoint_resnet18_01.pth.tar'  # Path to the trained model checkpoint
+    figure_name = "initial_space_initial_resnet18_01"  # Name for the saved figure
     base_model = 'resnet18'
     out_dim = 128
     batch_size = 256
@@ -62,4 +67,4 @@ if __name__ == "__main__":
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
     # Visualize latent space
-    visualize_latent_space(model_checkpoint_path, base_model, out_dim, test_loader, device)
+    visualize_latent_space(model_checkpoint_path, base_model, out_dim, test_loader, device, fig_name=figure_name)
