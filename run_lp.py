@@ -103,7 +103,7 @@ def main():
 
     # model checkpoint without training  
     # checkpoint_path = f'runs/checkpoint_4LP/initial_checkpoint_feb04_1834.pth.tar'
-    checkpoint_path = f'runs/checkpoint_4LP/initial_checkpoint_resnet50_01.pth.tar'  
+    checkpoint_path = f'runs/checkpoint_4LP/final_tocho_02.pth.tar'
     
     # model checkpoint with training
     #checkpoint_path = f'runs/checkpoint_4LP/final_checkpoint_resnet50_01.pth.tar'
