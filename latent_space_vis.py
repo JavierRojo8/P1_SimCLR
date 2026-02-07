@@ -8,7 +8,6 @@ from sklearn.manifold import TSNE
 from models.resnet_linear_probing import ResNetLP
 import numpy as np
 import seaborn as sns
-import umap.umap_ as umap
  
 def visualize_latent_space(model_checkpoint, base_model, out_dim, data_loader, device, fig_name=None):
     # Load the trained model
@@ -36,21 +35,11 @@ def visualize_latent_space(model_checkpoint, base_model, out_dim, data_loader, d
     # Apply t-SNE
     tsne = TSNE(n_components=2, random_state=0) 
     #features_2d = tsne.fit_transform(all_features_pca)
-    
-    reducer = umap.UMAP(
-        n_components=2,
-        random_state=0,
-        n_neighbors=15,
-        min_dist=0.1,
-        metric='euclidean'
-    )
-    features_2d = reducer.fit_transform(all_features)
-    
  
     # Plotting
     plt.figure(figsize=(10, 8))
     sns.scatterplot(x=features_2d[:, 0], y=features_2d[:, 1], hue=label_names, hue_order=CLASS_NAMES, palette='tab10', legend='full', alpha=0.7)
-    plt.title('Latent Space Visualization UMAP')
+    plt.title('Latent Space Visualization (PCA + t-SNE)')
     plt.xlabel('Dimension 1')
     plt.ylabel('Dimension 2')
     plt.legend(title='Classes')
@@ -61,8 +50,8 @@ def visualize_latent_space(model_checkpoint, base_model, out_dim, data_loader, d
 
 if __name__ == "__main__":
     # Define parameters
-    model_checkpoint_path = f'runs/checkpoint_4LP/initial_tocho_02.pth.tar'  # Path to the trained model checkpoint
-    figure_name = "initial_UMAP_resnet50_tocho_02"  # Name for the saved figure
+    model_checkpoint_path = f'runs/checkpoint_4LP/final_tocho_02.pth.tar'  # Path to the trained model checkpoint
+    figure_name = "final_PCA_resnet50_tocho_02"  # Name for the saved figure
     base_model = 'resnet50'
     out_dim = 128
     batch_size = 256
