@@ -39,7 +39,7 @@ def visualize_latent_space(model_checkpoint, base_model, out_dim, data_loader, d
     # Plotting
     plt.figure(figsize=(10, 8))
     sns.scatterplot(x=features_2d[:, 0], y=features_2d[:, 1], hue=label_names, hue_order=CLASS_NAMES, palette='tab10', legend='full', alpha=0.7)
-    plt.title('Latent Space Visualization using t-SNE')
+    plt.title('Latent Space Visualization for trained encoder using t-SNE')
     plt.xlabel('Dimension 1')
     plt.ylabel('Dimension 2')
     plt.legend(title='Classes')
@@ -50,8 +50,8 @@ def visualize_latent_space(model_checkpoint, base_model, out_dim, data_loader, d
 
 if __name__ == "__main__":
     # Define parameters
-    model_checkpoint_path = f'runs/checkpoint_4LP/initial_tocho_02.pth.tar' # Path to the trained model checkpoint
-    figure_name = "initial_TSNE_resnet50_tocho_02"  # Name for the saved figure
+    model_checkpoint_path = f'runs/checkpoint_4LP/final_tocho_02.pth.tar' # Path to the trained model checkpoint
+    figure_name = "final_TSNE_resnet50_tocho_02"  # Name for the saved figure
     base_model = 'resnet50'
     out_dim = 128
     batch_size = 256
