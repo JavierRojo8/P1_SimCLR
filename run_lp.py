@@ -17,7 +17,7 @@ parser.add_argument('-data', metavar='DIR', default='./datasets',
                     help='path to dataset')
 parser.add_argument('-dataset-name', default='cifar10',
                     help='dataset name', choices=['stl10', 'cifar10'])
-parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet50',
+parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
                     choices=model_names,
                     help='model architecture: ' +
                          ' | '.join(model_names) +
@@ -103,7 +103,7 @@ def main():
 
     # model checkpoint without training  
     # checkpoint_path = f'runs/checkpoint_4LP/initial_checkpoint_feb04_1834.pth.tar'
-    checkpoint_path = f'runs/checkpoint_4LP/data_aug_random_erasing_02.pth.tar'
+    checkpoint_path = f'runs/checkpoint_4LP/try_excede.pth.tar'
     
     # model checkpoint with training
     #checkpoint_path = f'runs/checkpoint_4LP/final_checkpoint_resnet50_01.pth.tar'
